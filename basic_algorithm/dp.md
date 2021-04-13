@@ -44,94 +44,42 @@
 
 动态规划，自底向上
 
-```go
-func minimumTotal(triangle [][]int) int {
-	if len(triangle) == 0 || len(triangle[0]) == 0 {
-		return 0
-	}
-	// 1、状态定义：f[i][j] 表示从i,j出发，到达最后一层的最短路径
-	var l = len(triangle)
-	var f = make([][]int, l)
-	// 2、初始化
-	for i := 0; i < l; i++ {
-		for j := 0; j < len(triangle[i]); j++ {
-			if f[i] == nil {
-				f[i] = make([]int, len(triangle[i]))
-			}
-			f[i][j] = triangle[i][j]
-		}
-	}
-	// 3、递推求解
-	for i := len(triangle) - 2; i >= 0; i-- {
-		for j := 0; j < len(triangle[i]); j++ {
-			f[i][j] = min(f[i+1][j], f[i+1][j+1]) + triangle[i][j]
-		}
-	}
-	// 4、答案
-	return f[0][0]
-}
-func min(a, b int) int {
-	if a > b {
-		return b
-	}
-	return a
-}
+```cpp
+class Solution {
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        for(int i=triangle.size()-2; i>=0;i--){
+            for(int j=0;j<triangle[i].size();j++){
+                triangle[i][j] = min(triangle[i+1][j],triangle[i+1][j+1]) + triangle[i][j];
+            }
+        }
+        return triangle[0][0];
+    }   
+};
 
 ```
 
 动态规划，自顶向下
 
-```go
-// 测试用例：
-// [
-// [2],
-// [3,4],
-// [6,5,7],
-// [4,1,8,3]
-// ]
-func minimumTotal(triangle [][]int) int {
-    if len(triangle) == 0 || len(triangle[0]) == 0 {
-        return 0
-    }
-    // 1、状态定义：f[i][j] 表示从0,0出发，到达i,j的最短路径
-    var l = len(triangle)
-    var f = make([][]int, l)
-    // 2、初始化
-    for i := 0; i < l; i++ {
-        for j := 0; j < len(triangle[i]); j++ {
-            if f[i] == nil {
-                f[i] = make([]int, len(triangle[i]))
-            }
-            f[i][j] = triangle[i][j]
-        }
-    }
-    // 递推求解
-    for i := 1; i < l; i++ {
-        for j := 0; j < len(triangle[i]); j++ {
-            // 这里分为两种情况：
-            // 1、上一层没有左边值
-            // 2、上一层没有右边值
-            if j-1 < 0 {
-                f[i][j] = f[i-1][j] + triangle[i][j]
-            } else if j >= len(f[i-1]) {
-                f[i][j] = f[i-1][j-1] + triangle[i][j]
-            } else {
-                f[i][j] = min(f[i-1][j], f[i-1][j-1]) + triangle[i][j]
+```cpp
+class Solution {
+public:
+    int minimumTotal(vector<vector<int>>& triangle) {
+        int l = triangle.size();
+        for(int i=1; i<triangle.size();i++){
+            for(int j=0;j<triangle[i].size();j++){
+                if(j==0) triangle[i][j] = triangle[i-1][j] + triangle[i][j];
+                else if(j==triangle[i].size()-1) triangle[i][j] = triangle[i-1][j-1] + triangle[i][j];
+                else triangle[i][j] = min(triangle[i-1][j],triangle[i-1][j-1]) + triangle[i][j];
             }
         }
+        int result = triangle[l-1][0];
+        for(int i=0;i<triangle[l-1].size();i++){
+            result = min(result,triangle[l-1][i]);
+        }
+        return result;
     }
-    result := f[l-1][0]
-    for i := 1; i < len(f[l-1]); i++ {
-        result = min(result, f[l-1][i])
-    }
-    return result
-}
-func min(a, b int) int {
-    if a > b {
-        return b
-    }
-    return a
-}
+};
 ```
 
 ## 递归和动规关系
@@ -194,34 +142,27 @@ Function(x) {
 3、intialize: f[0][0] = A[0][0]、f[i][0] = sum(0,0 -> i,0)、 f[0][i] = sum(0,0 -> 0,i)
 4、answer: f[n-1][m-1]
 
-```go
-func minPathSum(grid [][]int) int {
-    // 思路：动态规划
-    // f[i][j] 表示i,j到0,0的和最小
-    if len(grid) == 0 || len(grid[0]) == 0 {
-        return 0
-    }
-    // 复用原来的矩阵列表
-    // 初始化：f[i][0]、f[0][j]
-    for i := 1; i < len(grid); i++ {
-        grid[i][0] = grid[i][0] + grid[i-1][0]
-    }
-    for j := 1; j < len(grid[0]); j++ {
-        grid[0][j] = grid[0][j] + grid[0][j-1]
-    }
-    for i := 1; i < len(grid); i++ {
-        for j := 1; j < len(grid[i]); j++ {
-            grid[i][j] = min(grid[i][j-1], grid[i-1][j]) + grid[i][j]
+```cpp
+class Solution {
+public:
+    int minPathSum(vector<vector<int>>& grid) {
+        if(grid.size()==0||grid[0].size()==0) return 0;
+        int m=grid.size(),n = grid[0].size();
+        for(int i=1;i<m;i++){
+            grid[i][0] = grid[i][0]+grid[i-1][0];
         }
+        for(int i=1;i<n;i++){
+            grid[0][i] = grid[0][i]+grid[0][i-1];
+        }
+        for(int i=1;i<m;i++){
+            for(int j=1;j<n;j++){
+                grid[i][j] = grid[i][j]+min(grid[i-1][j],grid[i][j-1]);
+            }
+        }
+        return grid[m-1][n-1];
+
     }
-    return grid[len(grid)-1][len(grid[0])-1]
-}
-func min(a, b int) int {
-    if a > b {
-        return b
-    }
-    return a
-}
+};
 ```
 
 ### [unique-paths](https://leetcode-cn.com/problems/unique-paths/)
@@ -230,25 +171,24 @@ func min(a, b int) int {
 > 机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
 > 问总共有多少条不同的路径？
 
-```go
-func uniquePaths(m int, n int) int {
-	// f[i][j] 表示i,j到0,0路径数
-	f := make([][]int, m)
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if f[i] == nil {
-				f[i] = make([]int, n)
-			}
-			f[i][j] = 1
-		}
-	}
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
-			f[i][j] = f[i-1][j] + f[i][j-1]
-		}
-	}
-	return f[m-1][n-1]
-}
+```cpp
+class Solution {
+public:
+    int uniquePaths(int m, int n) {
+        vector<vector<int>> f(m, vector<int>(n));
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++)
+            f[i][j]=1;
+        }
+
+        for(int i=1;i<m;i++){
+            for(int j=1;j<n;j++)
+            f[i][j]=f[i-1][j]+f[i][j-1];
+        }
+        return f[m-1][n-1];
+
+    }
+};
 ```
 
 ### [unique-paths-ii](https://leetcode-cn.com/problems/unique-paths-ii/)
@@ -258,44 +198,36 @@ func uniquePaths(m int, n int) int {
 > 问总共有多少条不同的路径？
 > 现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径？
 
-```go
-func uniquePathsWithObstacles(obstacleGrid [][]int) int {
-	// f[i][j] = f[i-1][j] + f[i][j-1] 并检查障碍物
-	if obstacleGrid[0][0] == 1 {
-		return 0
-	}
-	m := len(obstacleGrid)
-	n := len(obstacleGrid[0])
-	f := make([][]int, m)
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			if f[i] == nil {
-				f[i] = make([]int, n)
-			}
-			f[i][j] = 1
-		}
-	}
-	for i := 1; i < m; i++ {
-		if obstacleGrid[i][0] == 1 || f[i-1][0] == 0 {
-			f[i][0] = 0
-		}
-	}
-	for j := 1; j < n; j++ {
-		if obstacleGrid[0][j] == 1 || f[0][j-1] == 0 {
-			f[0][j] = 0
-		}
-	}
-	for i := 1; i < m; i++ {
-		for j := 1; j < n; j++ {
-			if obstacleGrid[i][j] == 1 {
-				f[i][j] = 0
-			} else {
-				f[i][j] = f[i-1][j] + f[i][j-1]
-			}
-		}
-	}
-	return f[m-1][n-1]
-}
+```cpp
+class Solution {
+public:
+    int uniquePathsWithObstacles(vector<vector<int>>& obstacleGrid) {
+        if (obstacleGrid[0][0] == 1) return 0;
+        int m = obstacleGrid.size(), n = obstacleGrid[0].size();
+        vector<vector<int>> f(m,vector<int>(n));
+        for(int i=0;i<m;i++){
+            for(int j=0;j<n;j++){
+                if (obstacleGrid[i][j]==0) f[i][j]=1;
+                else f[i][j]=0;
+            }
+        }
+
+        for(int i=1;i<m;i++){
+            if (obstacleGrid[i][0]==1||f[i-1][0]==0) f[i][0] = 0;
+        }
+        for(int i=1;i<n;i++){
+            if (obstacleGrid[0][i]==1||f[0][i-1]==0) f[0][i] = 0;
+        }
+
+        for(int i=1;i<m;i++){
+            for(int j=1;j<n;j++){
+                if (obstacleGrid[i][j]==1) f[i][j]=0;
+                else f[i][j]=f[i][j-1]+f[i-1][j];
+            }
+        }
+        return f[m-1][n-1];
+    }
+};
 ```
 
 ## 2、序列类型（40%）
@@ -304,20 +236,20 @@ func uniquePathsWithObstacles(obstacleGrid [][]int) int {
 
 > 假设你正在爬楼梯。需要  *n*  阶你才能到达楼顶。
 
-```go
-func climbStairs(n int) int {
-    // f[i] = f[i-1] + f[i-2]
-    if n == 1 || n == 0 {
-        return n
+```cpp
+class Solution {
+public:
+    int climbStairs(int n) {
+        if(n==0||n==1) return n;
+        vector<int> f(n+1);
+        f[1]=1;
+        f[2]=2;
+        for(int i=3;i<=n;i++){
+            f[i] = f[i-1]+f[i-2];
+        }
+        return f[n];
     }
-    f := make([]int, n+1)
-    f[1] = 1
-    f[2] = 2
-    for i := 3; i <= n; i++ {
-        f[i] = f[i-1] + f[i-2]
-    }
-    return f[n]
-}
+};
 ```
 
 ### [jump-game](https://leetcode-cn.com/problems/jump-game/)
@@ -326,27 +258,19 @@ func climbStairs(n int) int {
 > 数组中的每个元素代表你在该位置可以跳跃的最大长度。
 > 判断你是否能够到达最后一个位置。
 
-```go
-func canJump(nums []int) bool {
-    // 思路：看最后一跳
-    // 状态：f[i] 表示是否能从0跳到i
-    // 推导：f[i] = OR(f[j],j<i&&j能跳到i) 判断之前所有的点最后一跳是否能跳到当前点
-    // 初始化：f[0] = 0
-    // 结果： f[n-1]
-    if len(nums) == 0 {
-        return true
-    }
-    f := make([]bool, len(nums))
-    f[0] = true
-    for i := 1; i < len(nums); i++ {
-        for j := 0; j < i; j++ {
-            if f[j] == true && nums[j]+j >= i {
-                f[i] = true
-            }
+```cpp
+//贪心算法
+class Solution {
+public:
+    bool canJump(vector<int>& nums) {
+        int can_reach =0;
+        for(int i=0;i<nums.size();i++){
+            if(i>can_reach) return false;
+            else can_reach=max(can_reach,i+nums[i]);
         }
+        return true;
     }
-    return f[len(nums)-1]
-}
+};
 ```
 
 ### [jump-game-ii](https://leetcode-cn.com/problems/jump-game-ii/)
@@ -355,32 +279,26 @@ func canJump(nums []int) bool {
 > 数组中的每个元素代表你在该位置可以跳跃的最大长度。
 > 你的目标是使用最少的跳跃次数到达数组的最后一个位置。
 
-```go
-func jump(nums []int) int {
-    // 状态：f[i] 表示从起点到当前位置最小次数
-    // 推导：f[i] = f[j],a[j]+j >=i,min(f[j]+1)
-    // 初始化：f[0] = 0
-    // 结果：f[n-1]
-    f := make([]int, len(nums))
-    f[0] = 0
-    for i := 1; i < len(nums); i++ {
-        // f[i] 最大值为i
-        f[i] = i
-        // 遍历之前结果取一个最小值+1
-        for j := 0; j < i; j++ {
-            if nums[j]+j >= i {
-                f[i] = min(f[j]+1,f[i])
+```cpp
+// 贪心
+class Solution {
+public:
+    int jump(vector<int>& nums) {
+        if(nums.size()==1) return 0;
+        int nextreach=nums[0];
+        int step=0;
+        int reach=0;
+        for(int i=0;i<nums.size()-1;i++){
+            nextreach=max(i+nums[i],nextreach);
+            if(nextreach>=nums.size()-1) return (step+1);
+            if(reach==i){
+                step++;
+                reach = nextreach;
             }
         }
+        return step;
     }
-    return f[len(nums)-1]
-}
-func min(a, b int) int {
-    if a > b {
-        return b
-    }
-    return a
-}
+};
 ```
 
 ### [palindrome-partitioning-ii](https://leetcode-cn.com/problems/palindrome-partitioning-ii/)
@@ -388,44 +306,37 @@ func min(a, b int) int {
 > 给定一个字符串 _s_，将 _s_ 分割成一些子串，使每个子串都是回文串。
 > 返回符合要求的最少分割次数。
 
-```go
-func minCut(s string) int {
-	// state: f[i] "前i"个字符组成的子字符串需要最少几次cut(个数-1为索引)
-	// function: f[i] = MIN{f[j]+1}, j < i && [j+1 ~ i]这一段是一个回文串
-	// intialize: f[i] = i - 1 (f[0] = -1)
-	// answer: f[s.length()]
-	if len(s) == 0 || len(s) == 1 {
-		return 0
-	}
-	f := make([]int, len(s)+1)
-	f[0] = -1
-	f[1] = 0
-	for i := 1; i <= len(s); i++ {
-		f[i] = i - 1
-		for j := 0; j < i; j++ {
-			if isPalindrome(s, j, i-1) {
-				f[i] = min(f[i], f[j]+1)
-			}
-		}
-	}
-	return f[len(s)]
-}
-func min(a, b int) int {
-	if a > b {
-		return b
-	}
-	return a
-}
-func isPalindrome(s string, i, j int) bool {
-	for i < j {
-		if s[i] != s[j] {
-			return false
-		}
-		i++
-		j--
-	}
-	return true
-}
+```cpp
+// state: f[i] "前i"个字符组成的子字符串需要最少几次cut(个数-1为索引)
+// function: f[i] = MIN{f[j]+1}, j < i && [j+1 ~ i]这一段是一个回文串
+// intialize: f[i] = i - 1 (f[0] = -1)
+// answer: f[s.length()]
+class Solution {
+public:
+    int minCut(string s) {
+        int n = s.size();
+        vector<int> f(n+1);
+        f[0]=-1;
+        f[1]=0;
+        for(int i=1;i<n+1;i++){
+            f[i] = i-1;
+            for(int j=0;j<i;j++){
+                if(isPalindrome(s,j,i-1)) f[i] = min(f[i],f[j]+1);
+            }
+        }
+        return f[n];
+        
+
+    }
+    bool isPalindrome(string s, int i,int j){
+        while(i<j){
+            if(s[i]!=s[j]) return false;
+            i++;
+            j--;
+        }
+        return true;
+    }
+};
 ```
 
 注意点
@@ -436,85 +347,56 @@ func isPalindrome(s string, i, j int) bool {
 
 > 给定一个无序的整数数组，找到其中最长上升子序列的长度。
 
-```go
-func lengthOfLIS(nums []int) int {
-    // f[i] 表示从0开始到i结尾的最长序列长度
-    // f[i] = max(f[j])+1 ,a[j]<a[i]
-    // f[0...n-1] = 1
-    // max(f[0]...f[n-1])
-    if len(nums) == 0 || len(nums) == 1 {
-        return len(nums)
-    }
-    f := make([]int, len(nums))
-    f[0] = 1
-    for i := 1; i < len(nums); i++ {
-        f[i] = 1
-        for j := 0; j < i; j++ {
-            if nums[j] < nums[i] {
-                f[i] = max(f[i], f[j]+1)
+```cpp
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        int n=nums.size();
+        vector<int> f(n);
+        for(int i=0;i<n;i++){
+            f[i]=1;
+            for(int j=0;j<i;j++){
+                if(nums[j]<nums[i])
+                f[i]=max(f[i],f[j]+1);
             }
         }
+        int result=f[0];
+        for(int i=0;i<n;i++){
+            result=max(result,f[i]);
+        }
+        return result;
     }
-    result := f[0]
-    for i := 1; i < len(nums); i++ {
-        result = max(result, f[i])
-    }
-    return result
-
-}
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
-}
+};
 ```
 
 ### [word-break](https://leetcode-cn.com/problems/word-break/)
 
 > 给定一个**非空**字符串  *s*  和一个包含**非空**单词列表的字典  *wordDict*，判定  *s*  是否可以被空格拆分为一个或多个在字典中出现的单词。
 
-```go
-func wordBreak(s string, wordDict []string) bool {
-	// f[i] 表示前i个字符是否可以被切分
-	// f[i] = f[j] && s[j+1~i] in wordDict
-	// f[0] = true
-	// return f[len]
-
-	if len(s) == 0 {
-		return true
-	}
-	f := make([]bool, len(s)+1)
-	f[0] = true
-	max := maxLen(wordDict)
-	for i := 1; i <= len(s); i++ {
-		for j := i - max; j < i && j >= 0; j++ {
-			if f[j] && inDict(s[j:i]) {
-				f[i] = true
-				break
-			}
-		}
-	}
-	return f[len(s)]
-}
-
-var dict = make(map[string]bool)
-
-func maxLen(wordDict []string) int {
-	max := 0
-	for _, v := range wordDict {
-		dict[v] = true
-		if len(v) > max {
-			max = len(v)
-		}
-	}
-	return max
-}
-
-func inDict(s string) bool {
-	_, ok := dict[s]
-	return ok
-}
+```cpp
+class Solution {
+public:
+    bool wordBreak(string s, vector<string>& wordDict) {
+        unordered_set<string> wordDictSet(wordDict.begin(), wordDict.end());
+        int n = s.size();
+        int maxWordLength = 0, minWordLength=0;
+        for (int i = 0; i < wordDict.size(); ++i){
+            maxWordLength = max(maxWordLength, (int)wordDict[i].size());
+            minWordLength = min(minWordLength, (int)wordDict[i].size());
+        }
+        vector<bool> f(n+1,false);
+        f[0]=true;
+        for(int i=minWordLength;i<n+1;i++){
+            for(int j=max(0,i-maxWordLength);j<i-minWordLength;j++){
+                if(f[j]&&wordDictSet.find(s.substr(j, i-j))!= wordDictSet.end()) {
+                f[i]=true;
+                break;
+                }
+            }
+        }
+        return f[n];
+    }
+};
 
 ```
 
@@ -535,48 +417,21 @@ func inDict(s string) bool {
 > 一个字符串的   子序列   是指这样一个新的字符串：它是由原字符串在不改变字符的相对顺序的情况下删除某些字符（也可以不删除任何字符）后组成的新字符串。
 > 例如，"ace" 是 "abcde" 的子序列，但 "aec" 不是 "abcde" 的子序列。两个字符串的「公共子序列」是这两个字符串所共同拥有的子序列。
 
-```go
-func longestCommonSubsequence(a string, b string) int {
-    // dp[i][j] a前i个和b前j个字符最长公共子序列
-    // dp[m+1][n+1]
-    //   ' a d c e
-    // ' 0 0 0 0 0
-    // a 0 1 1 1 1
-    // c 0 1 1 2 1
-    //
-    dp:=make([][]int,len(a)+1)
-    for i:=0;i<=len(a);i++ {
-        dp[i]=make([]int,len(b)+1)
-    }
-    for i:=1;i<=len(a);i++ {
-        for j:=1;j<=len(b);j++ {
-            // 相等取左上元素+1，否则取左或上的较大值
-            if a[i-1]==b[j-1] {
-                dp[i][j]=dp[i-1][j-1]+1
-            } else {
-                dp[i][j]=max(dp[i-1][j],dp[i][j-1])
+```cpp
+class Solution {
+public:
+    int longestCommonSubsequence(string text1, string text2) {
+        int n=text1.size(),m=text2.size();
+        vector<vector<int>> dp(n+1,vector<int>(m+1,0));
+        for(int i=1;i<=n;i++){
+            for(int j=1;j<=m;j++){
+                if(text1[i-1]==text2[j-1]) dp[i][j]=dp[i-1][j-1]+1;
+                else dp[i][j] = max(dp[i][j-1],dp[i-1][j]);
             }
         }
+        return dp[n][m];
     }
-    return dp[len(a)][len(b)]
-}
-func max(a,b int)int {
-    if a>b{
-        return a
-    }
-    return b
-}
-```
-
-注意点
-
-- go 切片初始化
-
-```go
-dp:=make([][]int,len(a)+1)
-for i:=0;i<=len(a);i++ {
-    dp[i]=make([]int,len(b)+1)
-}
+};
 ```
 
 - 从 1 开始遍历到最大长度
@@ -592,38 +447,28 @@ for i:=0;i<=len(a);i++ {
 
 思路：和上题很类似，相等则不需要操作，否则取删除、插入、替换最小操作次数的值+1
 
-```go
-func minDistance(word1 string, word2 string) int {
-    // dp[i][j] 表示a字符串的前i个字符编辑为b字符串的前j个字符最少需要多少次操作
-    // dp[i][j] = OR(dp[i-1][j-1]，a[i]==b[j],min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1])+1)
-    dp:=make([][]int,len(word1)+1)
-    for i:=0;i<len(dp);i++{
-        dp[i]=make([]int,len(word2)+1)
-    }
-    for i:=0;i<len(dp);i++{
-        dp[i][0]=i
-    }
-    for j:=0;j<len(dp[0]);j++{
-        dp[0][j]=j
-    }
-    for i:=1;i<=len(word1);i++{
-        for j:=1;j<=len(word2);j++{
-            // 相等则不需要操作
-            if word1[i-1]==word2[j-1] {
-                dp[i][j]=dp[i-1][j-1]
-            }else{ // 否则取删除、插入、替换最小操作次数的值+1
-                dp[i][j]=min(min(dp[i-1][j],dp[i][j-1]),dp[i-1][j-1])+1
+```cpp
+class Solution {
+public:
+    int minDistance(string word1, string word2) {
+        int n=word1.size(),m=word2.size();
+        vector<vector<int>> dp(n+1,vector<int>(m+1,0));
+        if(word1[0]!=word2[0]) dp[1][1]=1;
+        for (int i=2;i<=n;i++){
+            dp[i][0]=dp[i-1][0]+1;
+        }
+        for (int j=2;j<=m;j++){
+            dp[0][j]=dp[0][j-1]+1;
+        }
+        for (int i=1;i<=n;i++){
+            for(int j=1;j<=m;j++){
+                if(word1[i-1]==word2[j-1]) dp[i][j]=dp[i-1][j-1];
+                else dp[i][j]=min(min(dp[i][j-1],dp[i-1][j]),dp[i-1][j-1])+1;
             }
         }
+        return dp[n][m];
     }
-    return dp[len(word1)][len(word2)]
-}
-func min(a,b int)int{
-    if a>b{
-        return b
-    }
-    return a
-}
+};
 ```
 
 说明
@@ -638,73 +483,64 @@ func min(a,b int)int{
 
 思路：和其他 DP 不太一样，i 表示钱或者容量
 
-```go
-func coinChange(coins []int, amount int) int {
-    // 状态 dp[i]表示金额为i时，组成的最小硬币个数
-    // 推导 dp[i]  = min(dp[i-1], dp[i-2], dp[i-5])+1, 前提 i-coins[j] > 0
-    // 初始化为最大值 dp[i]=amount+1
-    // 返回值 dp[n] or dp[n]>amount =>-1
-    dp:=make([]int,amount+1)
-    for i:=0;i<=amount;i++{
-        dp[i]=amount+1
-    }
-    dp[0]=0
-    for i:=1;i<=amount;i++{
-        for j:=0;j<len(coins);j++{
-            if  i-coins[j]>=0  {
-                dp[i]=min(dp[i],dp[i-coins[j]]+1)
+```cpp
+class Solution {
+public:
+    int coinChange(vector<int>& coins, int amount) {
+        vector<int> dp(amount+1,amount+1);
+        int n=coins.size();
+
+        dp[0]=0;
+        for(int i=1;i<=amount;i++){
+            for(int j=0;j<n;j++){
+                if(i-coins[j]>=0) dp[i] = min(dp[i],dp[i-coins[j]]+1);
             }
         }
+        if (dp[amount]>amount) return -1;
+        return dp[amount];
     }
-    if dp[amount] > amount {
-        return -1
-    }
-    return dp[amount]
-
-}
-func min(a,b int)int{
-    if a>b{
-        return b
-    }
-    return a
-}
+};
 ```
 
 注意
 
 > dp[i-a[j]] 决策 a[j]是否参与
 
-### [backpack](https://www.lintcode.com/problem/backpack/description)
+### [backpack](https://www.li   ntcode.com/problem/backpack/description)
 
 > 在 n 个物品中挑选若干物品装入背包，最多能装多满？假设背包的大小为 m，每个物品的大小为 A[i]
 
-```go
-func backPack (m int, A []int) int {
-    // write your code here
-    // f[i][j] 前i个物品，是否能装j
-    // f[i][j] =f[i-1][j] f[i-1][j-a[i] j>a[i]
-    // f[0][0]=true f[...][0]=true
-    // f[n][X]
-    f:=make([][]bool,len(A)+1)
-    for i:=0;i<=len(A);i++{
-        f[i]=make([]bool,m+1)
-    }
-    f[0][0]=true
-    for i:=1;i<=len(A);i++{
-        for j:=0;j<=m;j++{
-            f[i][j]=f[i-1][j]
-            if j-A[i-1]>=0 && f[i-1][j-A[i-1]]{
-                f[i][j]=true
+```cpp
+class Solution {
+public:
+    /**
+     * @param m: An integer m denotes the size of a backpack
+     * @param A: Given n items with size A[i]
+     * @return: The maximum size
+     */
+    int backPack(int m, vector<int> &A) {
+        // write your code here
+        
+        int n =A.size();
+        vector<vector<bool>> dp(n+1,vector<bool>(m+1));
+        dp[0][0]=true;
+        for(int i=1;i<n+1;i++){
+            dp[i][0]=true;
+        }
+
+        for(int i=1;i<n+1;i++){
+            for(int j=0;j<m+1;j++){
+                dp[i][j] = dp[i-1][j];
+                if(j-A[i-1]>=0&&dp[i-1][j-A[i-1]]) dp[i][j]=true;
             }
         }
-    }
-    for i:=m;i>=0;i--{
-        if f[len(A)][i] {
-            return i
+
+        for(int i=m;i>=0;i--){
+            if(dp[n][i]) return i;
         }
+        return 0;
     }
-    return 0
-}
+};
 
 ```
 

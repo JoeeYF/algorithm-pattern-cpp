@@ -17,26 +17,23 @@
 
 思路：核心点遍历给定字符串字符，判断以当前字符开头字符串是否等于目标字符串
 
-```go
-func strStr(haystack string, needle string) int {
-    if len(needle) == 0 {
-        return 0
-    }
-    var i, j int
-    // i不需要到len-1
-    for i = 0; i < len(haystack)-len(needle)+1; i++ {
-        for j = 0; j < len(needle); j++ {
-            if haystack[i+j] != needle[j] {
-                break
+```cpp
+class Solution {
+public:
+    int strStr(string haystack, string needle) {
+        int len_haystack=size(haystack);
+        int len_needle=size(needle);
+        int i,j;
+        for(i=0;i<(len_haystack-len_needle+1);i++){
+            for(j=0;j<len_needle;j++){
+                if (haystack[i+j]!=needle[j]) break;
             }
+            if (len_needle==j)
+                return i;
         }
-        // 判断字符串长度是否相等
-        if len(needle) == j {
-            return i
-        }
+        return -1;
     }
-    return -1
-}
+};
 ```
 
 需要注意点
@@ -68,7 +65,7 @@ func backtrack(选择列表,路径):
 
 答案代码
 
-```go
+```cpp
 func subsets(nums []int) [][]int {
     // 保存最终结果
     result := make([][]int, 0)
@@ -98,6 +95,27 @@ func backtrack(nums []int, pos int, list []int, result *[][]int) {
 
 说明：后面会深入讲解几个典型的回溯算法问题，如果当前不太了解可以暂时先跳过
 
+```c++
+class Solution {
+public:
+    vector<vector<int>> subsets(vector<int>& nums) {
+        vector<vector<int>> result;
+        vector<int> temp;
+        for(int item:nums){
+            int len = result.size();
+            for(int i=0;i<len;i++){
+                temp=result[i];
+                temp.push_back({item});
+                result.push_back(temp);
+            }
+            result.push_back({item});
+            
+        }
+        result.push_back({});
+        return result;
+    }
+};
+```
 ## 面试注意点
 
 我们大多数时候，刷算法题可能都是为了准备面试，所以面试的时候需要注意一些点
@@ -112,5 +130,5 @@ func backtrack(nums []int, pos int, list []int, result *[][]int) {
 
 ## 练习
 
-- [ ] [strStr](https://leetcode-cn.com/problems/implement-strstr/)
-- [ ] [subsets](https://leetcode-cn.com/problems/subsets/)
+-  [strStr](https://leetcode-cn.com/problems/implement-strstr/)
+- [subsets](https://leetcode-cn.com/problems/subsets/)
