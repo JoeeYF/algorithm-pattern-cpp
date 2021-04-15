@@ -11,9 +11,6 @@ void quickSort(vector<int> &q,int l,int r){
         while(q[j]>=q[l]&&i<j) j--;
         while(q[i]<=q[l]&&i<j) i++;
         swap(q[i],q[j]);
-        // for(auto x : q)
-        // cout << x << ' ';
-        // cout << endl;
     }
     swap(q[i],q[l]);
     quickSort(q,l,i-1);

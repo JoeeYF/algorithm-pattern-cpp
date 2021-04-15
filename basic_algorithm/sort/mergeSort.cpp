@@ -25,7 +25,7 @@ void mergeSort(vector<int> &q,int l,int r){
 
 int main()
 {
-    vector<int> q= {3245,234,123,523,5623,323,31114,3,2,7,4};
+    vector<int> q= {3245,234,123,523,5623,323,31114,3,2,7,4,0,-1};
     for(auto x : q)
         cout << x << ' ';
     cout << endl;

@@ -6,18 +6,16 @@
 
 ```cpp
 void quickSort(vector<int> &q,int l,int r){
-    if(l<r){
-        int i=l,j=r,x=q[l];
-        while(i<j){
-            while(i<j&&q[j]>x) j--;
-            if(i<j) q[i++]=q[j];
-            while(i<j&&q[i]<x) i++;
-            if(i<j) q[j--]=q[i];
-        }
-        q[i]=x;
-        quickSort(q,l,i-1);
-        quickSort(q,i+1,r);
+    if(l>=r) return;
+    int i=l,j=r;
+    while(i<j){
+        while(q[j]>=q[l]&&i<j) j--;
+        while(q[i]<=q[l]&&i<j) i++;
+        swap(q[i],q[j]);
     }
+    swap(q[i],q[l]);
+    quickSort(q,l,i-1);
+    quickSort(q,i+1,r);
 }
 ```
 
